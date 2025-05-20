@@ -56,6 +56,10 @@ typedef struct sockaddr_in sockaddr_in_t;
 #define ARG_OUT
 #endif
 
+#ifndef ARG_INOUT
+#define ARG_INOUT
+#endif
+
 static inline int csgui(init_socket_t)();
 static inline socket_t csgui(create_socket_t)(
     int ARG_IN af,
@@ -71,10 +75,42 @@ static inline int csgui(setsockopt_t)(
 );
 static inline int csgui(close_t)(socket_t ARG_IN self);
 static inline int csgui(bind_t)(
-    sockaddr_in_t * ARG_IN addr,
-    short ARG_IN family,
-    unsigned short ARG_IN port,
-    const char * ARG_IN ip_address
+    socket_t sock,
+    sockaddr_in_t * addr,
+    short family,
+    unsigned short port,
+    const char * ip_address
+);
+
+static inline int csgui(listen_t)(
+    socket_t ARG_IN self,
+    int ARG_IN backlog
+);
+
+static inline socket_t csgui(accept_t)(
+    socket_t ARG_IN self,
+    sockaddr_in_t * ARG_OUT addr,
+    socklen_t * ARG_INOUT addrlen
+);
+
+static inline int csgui(connect_t)(
+    socket_t ARG_IN self,
+    const sockaddr_in_t * ARG_IN addr,
+    socklen_t ARG_IN addrlen
+);
+
+static inline ssize_t csgui(send_t)(
+    socket_t ARG_IN self,
+    const void * ARG_IN buf,
+    size_t ARG_IN len,
+    int ARG_IN flags
+);
+
+static inline ssize_t csgui(recv_t)(
+    socket_t ARG_IN self,
+    void * ARG_OUT buf,
+    size_t ARG_IN len,
+    int ARG_IN flags
 );
 
 

@@ -54,16 +54,49 @@ static inline int csgui(close_t)(socket_t ARG_IN self) {
 }
 
 static inline int csgui(bind_t)(
-        sockaddr_in_t * ARG_IN addr,
-        short ARG_IN family,
-        unsigned short ARG_IN port,
-        const char * ARG_IN ip_address
-    ) {
+    socket_t sock,
+    sockaddr_in_t * addr,
+    short family,
+    unsigned short port,
+    const char * ip_address
+) {
     addr->sin_family = family;
     addr->sin_port   = htons(port);
+    if (inet_pton(AF_INET, ip_address, &(addr->sin_addr)) <= 0) {
+        return -1;
+    }
 
-    return inet_pton(AF_INET, ip_address, &(addr->sin_addr));
+    return bind(sock, (struct sockaddr *)addr, sizeof(*addr));
 }
+
+static inline int csgui(listen_t)(socket_t self, int backlog) {
+    return listen(self, backlog);
+}
+
+static inline socket_t csgui(accept_t)(socket_t self, sockaddr_in_t * addr, socklen_t * addrlen) {
+    return accept(self, (struct sockaddr *)addr, addrlen);
+}
+
+static inline int csgui(connect_t)(socket_t self, const sockaddr_in_t * addr, socklen_t addrlen) {
+    return connect(self, (const struct sockaddr *)addr, addrlen);
+}
+
+static inline ssize_t csgui(send_t)(socket_t self, const void * buf, size_t len, int flags) {
+#ifdef __linux__
+    return send(self, buf, len, flags);
+#elif defined(_WIN32) || defined(_WIN64)
+    return send(self, (const char *)buf, (int)len, flags);
+#endif
+}
+
+static inline ssize_t csgui(recv_t)(socket_t self, void * buf, size_t len, int flags) {
+#ifdef __linux__
+    return recv(self, buf, len, flags);
+#elif defined(_WIN32) || defined(_WIN64)
+    return recv(self, (char *)buf, (int)len, flags);
+#endif
+}
+
 
 
 
